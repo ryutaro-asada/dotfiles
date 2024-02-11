@@ -68,23 +68,67 @@ vim.o.termguicolors = true
 
 vim.o.autochdir = false
 
--- [[ Basic Keymaps ]]
 
+
+-- [[ Keymaps 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
-
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
-
 vim.keymap.set('n', '<leader>ff', vim.lsp.buf.format, { desc = 'Format current buffer' })
+
+-- See `:help telescope.builtin`
+vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
+vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
+vim.keymap.set('n', '<leader>/', function()
+  -- You can pass additional configuration to telescope to change theme, layout, etc.
+  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+    winblend = 10,
+    previewer = false,
+  })
+end, { desc = '[/] Fuzzily search in current buffer' })
+
+local function telescope_live_grep_open_files()
+  require('telescope.builtin').live_grep {
+    grep_open_files = true,
+    prompt_title = 'Live Grep in Open Files',
+  }
+end
+vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })
+vim.keymap.set('n', '<leader>sg', require('telescope.builtin').git_status, { desc = 'Search [G]it [F]iles' })
+vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<leader>st', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>sb', require('telescope.builtin').buffers, { desc = '[S]earch by [B]uffers' })
+vim.keymap.set('n', "<leader>sd", require("telescope").extensions.dir.live_grep, { desc = '[S]earch by [D]ir Grep' })
+
+vim.keymap.set('n', "<leader>cf", "<cmd>! echo %<CR>", { desc = '[C]urrent [F]ile' })
+vim.keymap.set('n', "<leader>cw", vim.fn.getcwd(), { desc = '[C]urrent [W]ork dir' })
+local keyopts = { noremap = true, silent = true }
+local key_map = vim.api.nvim_set_keymap
+key_map("n", "tp", "gT", keyopts)
+key_map("n", "tn", "gt", keyopts)
+local keymap = vim.keymap.set
+-- https://github.com/orgs/community/discussions/29817#discussioncomment-4217615
+keymap(
+  "i",
+  "<C-g>",
+  'copilot#Accept("<CR>")',
+  { silent = true, expr = true, script = true, replace_keycodes = false }
+)
+keymap("i", "<C-j>", "<Plug>(copilot-next)")
+keymap("i", "<C-k>", "<Plug>(copilot-previous)")
+keymap("i", "<C-d>", "<Plug>(copilot-dismiss)")
+keymap("i", "<C-s>", "<Plug>(copilot-suggest)")
+
+-- ]]
+
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -167,32 +211,7 @@ end
 
 vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
 
--- See `:help telescope.builtin`
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-vim.keymap.set('n', '<leader>/', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
-  })
-end, { desc = '[/] Fuzzily search in current buffer' })
 
-local function telescope_live_grep_open_files()
-  require('telescope.builtin').live_grep {
-    grep_open_files = true,
-    prompt_title = 'Live Grep in Open Files',
-  }
-end
-vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]earch [/] in Open Files' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').git_status, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>st', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<leader>sb', require('telescope.builtin').buffers, { desc = '[S]earch by [B]uffers' })
-vim.keymap.set('n', "<leader>sd", require("telescope").extensions.dir.live_grep, { desc = '[S]earch by [D]ir Grep' })
-
-vim.keymap.set('n', "<leader>cf", "<cmd>! echo %<CR>", { desc = '[C]urrent [F]ile' })
-vim.keymap.set('n', "<leader>cw", vim.fn.getcwd(), { desc = '[C]urrent [W]ork dir' })
 
 
 
@@ -240,8 +259,7 @@ vim.defer_fn(function()
           [']]'] = '@class.outer',
         },
         goto_next_end = {
-          [']M'] = '@function.outer',
-          [']['] = '@class.outer',
+          [']M'] = '@function.outer', [']['] = '@class.outer',
         },
         goto_previous_start = {
           ['[m'] = '@function.outer',
@@ -521,10 +539,6 @@ cmp.setup {
 }
 
 
-local keyopts = { noremap = true, silent = true }
-local key_map = vim.api.nvim_set_keymap
-key_map("n", "tp", "gT", keyopts)
-key_map("n", "tn", "gt", keyopts)
 
 local set_options = {
   hlsearch = true,
@@ -546,15 +560,3 @@ vim.cmd [[colorscheme gruvbox]]
 vim.opt.termguicolors = true
 
 vim.g.copilot_no_tab_map = true
-local keymap = vim.keymap.set
--- https://github.com/orgs/community/discussions/29817#discussioncomment-4217615
-keymap(
-  "i",
-  "<C-g>",
-  'copilot#Accept("<CR>")',
-  { silent = true, expr = true, script = true, replace_keycodes = false }
-)
-keymap("i", "<C-j>", "<Plug>(copilot-next)")
-keymap("i", "<C-k>", "<Plug>(copilot-previous)")
-keymap("i", "<C-d>", "<Plug>(copilot-dismiss)")
-keymap("i", "<C-s>", "<Plug>(copilot-suggest)")
