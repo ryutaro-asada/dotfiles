@@ -70,7 +70,7 @@ vim.o.autochdir = false
 
 
 
--- [[ Keymaps 
+-- [[ Keymaps
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
@@ -83,6 +83,9 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnos
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 vim.keymap.set('n', '<leader>ff', vim.lsp.buf.format, { desc = 'Format current buffer' })
+
+-- 
+vim.keymap.set( 'i', 'kk', '<ESC>', { silent = true })
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
@@ -126,6 +129,9 @@ keymap("i", "<C-j>", "<Plug>(copilot-next)")
 keymap("i", "<C-k>", "<Plug>(copilot-previous)")
 keymap("i", "<C-d>", "<Plug>(copilot-dismiss)")
 keymap("i", "<C-s>", "<Plug>(copilot-suggest)")
+
+
+
 
 -- ]]
 
@@ -259,14 +265,14 @@ vim.defer_fn(function()
           [']]'] = '@class.outer',
         },
         goto_next_end = {
-          [']M'] = '@function.outer', [']['] = '@class.outer',
+          ['[m'] = '@function.outer', [']['] = '@class.outer',
         },
         goto_previous_start = {
-          ['[m'] = '@function.outer',
+          ['[M'] = '@function.outer',
           ['[['] = '@class.outer',
         },
         goto_previous_end = {
-          ['[M'] = '@function.outer',
+          [']M'] = '@function.outer',
           ['[]'] = '@class.outer',
         },
       },
@@ -442,7 +448,14 @@ local servers = {
 
   -- typescript & javascript lsp
   -- tsserver = {},
-  eslint = {},
+  eslint = {
+    on_attach = function(client, bufnr)
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        buffer = bufnr,
+        command = "EslintFixAll",
+      })
+    end,
+  },
 
   -- cpp lsp
   clangd = {},
@@ -560,3 +573,28 @@ vim.cmd [[colorscheme gruvbox]]
 vim.opt.termguicolors = true
 
 vim.g.copilot_no_tab_map = true
+
+
+-- Reference highlight
+-- vim.cmd [[
+-- set updatetime=500
+-- highlight LspReferenceText  cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
+-- highlight LspReferenceRead  cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
+-- highlight LspReferenceWrite cterm=underline ctermfg=1 ctermbg=8 gui=underline guifg=#A00000 guibg=#104040
+-- augroup lsp_document_highlight
+--   autocmd!
+--   autocmd CursorHold,CursorHoldI * lua vim.lsp.buf.document_highlight()
+--   autocmd CursorMoved,CursorMovedI * lua vim.lsp.buf.clear_references()
+-- augroup END
+-- ]]
+
+-- function _G.put(...)
+--   local objects = {}
+--   for i = 1, select('#', ...) do
+--     local v = select(i, ...)
+--     table.insert(objects, vim.inspect(v))
+--   end
+--
+--   print(table.concat(objects, '\n'))
+--   return ...
+-- end
