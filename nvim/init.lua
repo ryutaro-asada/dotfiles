@@ -64,7 +64,7 @@ vim.wo.signcolumn = 'yes'
 
 -- Decrease update time
 vim.o.updatetime = 250
-vim.o.timeoutlen = 300
+vim.o.timeoutlen = 310
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
@@ -150,6 +150,14 @@ keymap("i", "<C-k>", "<Plug>(copilot-previous)")
 keymap("i", "<C-d>", "<Plug>(copilot-dismiss)")
 keymap("i", "<C-s>", "<Plug>(copilot-suggest)")
 
+-- gitlinker
+vim.api.nvim_set_keymap('n', '<leader>gB',
+  '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
+  { silent = true })
+vim.api.nvim_set_keymap('v', '<leader>gB',
+  '<cmd>lua require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
+  {})
+
 
 
 -- ]]
@@ -195,6 +203,10 @@ require('telescope').setup {
   },
   -- ref: https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#mapping-c-d-to-delete-buffer
   pickers = {
+    live_grep = {
+      -- live_grepの結果数を増やす
+      max_results = 1000, -- 結果の最大数を設定
+    },
     buffers = {
       show_all_buffers = true,
       sort_lastused = true,
@@ -529,13 +541,6 @@ vim.lsp.config('clangd', {
 })
 vim.lsp.enable('clangd')
 
--- ESLint LSP
-vim.lsp.config('eslint', {
-  capabilities = capabilities,
-  on_attach = on_attach,
-})
-vim.lsp.enable('eslint')
-
 -- -- HTML LSP
 vim.lsp.config('html', {
   capabilities = capabilities_html,
@@ -589,13 +594,6 @@ vim.lsp.config('pylsp', {
 })
 vim.lsp.enable('pylsp')
 
--- Vue/Volar LSP
-vim.lsp.config('volar', {
-  capabilities = capabilities,
-  on_attach = on_attach,
-})
-vim.lsp.enable('volar')
-
 -- Markdown LSP
 vim.lsp.config('marksman', {
   capabilities = capabilities,
@@ -617,8 +615,35 @@ vim.lsp.config('autotools_ls', {
 })
 vim.lsp.enable('autotools_ls')
 
+vim.lsp.config('rust_analyzer', {
+  settings = {
+    ['rust-analyzer'] = {
+      diagnostics = {
+        enable = false,
+      }
+    }
+  }
+})
+vim.lsp.enable('rust_analyzer')
 
+vim.lsp.config('ts_ls', {
+  on_attach = on_attach,
+})
+vim.lsp.enable('ts_ls')
 
+local base_on_attach = vim.lsp.config.eslint.on_attach
+vim.lsp.config("eslint", {
+  on_attach = function(client, bufnr)
+    if not base_on_attach then return end
+
+    base_on_attach(client, bufnr)
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      buffer = bufnr,
+      command = "LspEslintFixAll",
+    })
+  end,
+})
+vim.lsp.enable('eslint')
 
 
 -- [[ Configure nvim-cmp ]]
@@ -750,59 +775,59 @@ vim.keymap.set('n', 'Y', function()
   vim.notify('Copied relative path: ' .. filepath)
 end, { desc = 'Copy current relative file path to clipboard' })
 
--- RSpec実行のキーマッピング設定
--- init.lua または適切な設定ファイルに追加してください
 
--- RSpecを実行する関数
-local function run_rspec_current_file()
-  -- 現在のファイルパスを取得
-  local current_file = vim.fn.expand('%')
-
-  -- ファイルが存在するかチェック
-  if current_file == '' then
-    print('No file is currently open')
-    return
-  end
-
-  -- RSpecコマンドを構築
-  local cmd = string.format('docker compose exec -ti rails bundle exec rspec %s', current_file)
-
-  -- ターミナルでコマンドを実行
-  vim.cmd('split | terminal ' .. cmd)
-end
-
--- RSpecで現在行のテストを実行する関数
-local function run_rspec_current_line()
-  -- 現在のファイルの相対パスを取得
-  local current_file = vim.fn.expand('%')
-
-  -- ファイルが存在するかチェック
-  if current_file == '' then
-    print('No file is currently open')
-    return
-  end
-
-  -- 現在の行番号を取得
-  local current_line = vim.fn.line('.')
-
-  -- RSpecコマンドを構築（相対パス:行番号を使用）
-  local cmd = string.format('docker compose exec -ti rails bundle exec rspec %s:%d', current_file, current_line)
-
-  -- ターミナルでコマンドを実行
-  vim.cmd('split | terminal ' .. cmd)
-end
-
--- キーマッピングを設定
-vim.keymap.set('n', '<leader>tt', run_rspec_current_file, {
-  desc = 'Run RSpec for current file',
-  noremap = true,
-  silent = true
-})
-vim.keymap.set('n', '<leader>tl', run_rspec_current_line, {
-  desc = 'Run RSpec for current line',
-  noremap = true,
-  silent = true
-})
+-- -- RSpec実行のキーマッピング設定
+-- -- init.lua または適切な設定ファイルに追加してください
+-- -- RSpecを実行する関数
+-- local function run_rspec_current_file()
+--   -- 現在のファイルパスを取得
+--   local current_file = vim.fn.expand('%')
+--
+--   -- ファイルが存在するかチェック
+--   if current_file == '' then
+--     print('No file is currently open')
+--     return
+--   end
+--
+--   -- RSpecコマンドを構築
+--   local cmd = string.format('docker compose exec -ti rails bundle exec rspec %s', current_file)
+--
+--   -- ターミナルでコマンドを実行
+--   vim.cmd('split | terminal ' .. cmd)
+-- end
+--
+-- -- RSpecで現在行のテストを実行する関数
+-- local function run_rspec_current_line()
+--   -- 現在のファイルの相対パスを取得
+--   local current_file = vim.fn.expand('%')
+--
+--   -- ファイルが存在するかチェック
+--   if current_file == '' then
+--     print('No file is currently open')
+--     return
+--   end
+--
+--   -- 現在の行番号を取得
+--   local current_line = vim.fn.line('.')
+--
+--   -- RSpecコマンドを構築（相対パス:行番号を使用）
+--   local cmd = string.format('docker compose exec -ti rails bundle exec rspec %s:%d', current_file, current_line)
+--
+--   -- ターミナルでコマンドを実行
+--   vim.cmd('split | terminal ' .. cmd)
+-- end
+--
+-- -- キーマッピングを設定
+-- vim.keymap.set('n', '<leader>tt', run_rspec_current_file, {
+--   desc = 'Run RSpec for current file',
+--   noremap = true,
+--   silent = true
+-- })
+-- vim.keymap.set('n', '<leader>tl', run_rspec_current_line, {
+--   desc = 'Run RSpec for current line',
+--   noremap = true,
+--   silent = true
+-- })
 
 -- syntax off
 
@@ -836,3 +861,24 @@ require('partial-diff').setup({
     }
   }
 })
+
+-- require("neotest").setup({
+--   adapters = {
+--     require("neotest-go")({
+--       command = "docker",
+--       args = { "exec", "-it", "nhk-world-cms-dev-env", "go", "test" },
+--       experimental = { test_table = true },
+--       recursive_run = true,
+--     }),
+--   },
+--   -- output = { open_on_run = true },
+-- })
+
+-- vim.keymap.set("n", "<leader>tl", function()
+--   require("neotest").run.run() -- nearest test
+-- end)
+
+
+vim.keymap.set("n", "<leader>tt", function()
+  require('neotest').run.run(vim.fn.expand('%'))
+end)

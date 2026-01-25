@@ -48,8 +48,6 @@ keymap("n", "<Space>l", "$", opts)
 keymap("n", "<Esc><Esc>", ":<C-u>set nohlsearch<Return>", opts)
 
 -- Insert --
--- Press jk fast to exit insert mode
-keymap("i", "jk", "<ESC>", opts)
 
 -- コンマの後に自動的にスペースを挿入
 keymap("i", ",", ",<Space>", opts)
@@ -64,3 +62,6 @@ keymap("v", "v", "$h", opts)
 
 -- 0番レジスタを使いやすくした
 keymap("v", "<C-p>", '"0p', opts)
+
+-- Terminal --
+keymap('t', 'kk', "<C-\\><C-n>", opts)
