@@ -1,67 +1,179 @@
+-- Keymaps configuration
 local opts = { noremap = true, silent = true }
--- local term_opts = { silent = true }
-
---local keymap = vim.keymap
 local keymap = vim.api.nvim_set_keymap
 
---Remap space as leader key
--- keymap("", "<Space>", "<Nop>", opts)
--- vim.g.mapleader = " "
--- vim.g.maplocalleader = " "
+-- Leader key is set in options.lua
 
--- Modes
---   normal_mode = 'n',
---   insert_mode = 'i',
---   visual_mode = 'v',
---   visual_block_mode = 'x',
---   term_mode = 't',
---   command_mode = 'c',
+-- Disable space in normal and visual mode (leader key)
+vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 
--- Normal --
--- Better window navigation
+-- ===========================
+-- Normal mode
+-- ===========================
+
+-- Window navigation
 keymap("n", "<C-h>", "<C-w>h", opts)
 keymap("n", "<C-j>", "<C-w>j", opts)
 keymap("n", "<C-k>", "<C-w>k", opts)
 keymap("n", "<C-l>", "<C-w>l", opts)
 
--- -- New tab
--- keymap("n", "te", ":tabedit", opts)
--- -- 新しいタブを一番右に作る
--- keymap("n", "tn", ":tabnew<Return>", opts)
--- -- move tab
--- keymap("n", "tp", "gT", opts)
--- keymap("n", "tn", "gt", opts)
-
--- -- Split window
--- keymap("n", "ss", ":split<Space>", opts)
--- keymap("n", "sv", ":vsplit<Space>", opts)
-
+-- Window exchange
+vim.api.nvim_set_keymap('n', '<leader>xx', '<C-w>x', { desc = 'exchange next window' })
 
 -- Do not yank with x
 keymap("n", "x", '"_x', opts)
 
--- 行の端に行く
+-- Move to line start/end
 keymap("n", "<Space>h", "^", opts)
 keymap("n", "<Space>l", "$", opts)
 
--- ESC*2 でハイライトやめる
+-- Clear search highlight
 keymap("n", "<Esc><Esc>", ":<C-u>set nohlsearch<Return>", opts)
 
--- Insert --
+-- Better j/k navigation (respect wrapped lines)
+vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
--- コンマの後に自動的にスペースを挿入
+-- Tab navigation
+keymap("n", "tp", "gT", opts)
+keymap("n", "tn", "gt", opts)
+
+-- Diagnostic keymaps
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+
+-- LSP keymaps
+vim.keymap.set('n', '<leader>ff', vim.lsp.buf.format, { desc = 'Format current buffer' })
+vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { desc = '[C]ode [A]ction' })
+
+-- File operations
+vim.keymap.set('n', '<leader>cf', "<cmd>! echo %<CR>", { desc = 'show [C]urrent [F]ile' })
+
+-- Reload buffer
+vim.keymap.set('n', '<leader>ll', function()
+  vim.cmd('e')
+end, { noremap = true, silent = true })
+
+-- Copy current file relative path to clipboard
+vim.keymap.set('n', 'Y', function()
+  local filepath = vim.fn.expand('%')
+  vim.fn.setreg('+', filepath)
+  vim.notify('Copied relative path: ' .. filepath)
+end, { desc = 'Copy current relative file path to clipboard' })
+
+-- ===========================
+-- Insert mode
+-- ===========================
+
+-- Quick escape to normal mode
+vim.keymap.set('i', 'kk', '<ESC>', { silent = true })
+
+-- Auto-insert space after comma
 keymap("i", ",", ",<Space>", opts)
 
--- Visual --
+-- ===========================
+-- Visual mode
+-- ===========================
+
 -- Stay in indent mode
 keymap("v", "<", "<gv", opts)
 keymap("v", ">", ">gv", opts)
 
--- ビジュアルモード時vで行末まで選択
+-- Select to end of line with v
 keymap("v", "v", "$h", opts)
 
--- 0番レジスタを使いやすくした
+-- Paste from 0 register
 keymap("v", "<C-p>", '"0p', opts)
 
--- Terminal --
+-- ===========================
+-- Terminal mode
+-- ===========================
+
+-- Quick escape from terminal mode
 keymap('t', 'kk', "<C-\\><C-n>", opts)
+
+-- ===========================
+-- Telescope keymaps
+-- ===========================
+-- Note: These are defined here but will only work after Telescope is loaded
+
+vim.keymap.set('n', '<leader>?', function()
+  require('telescope.builtin').oldfiles()
+end, { desc = '[?] Find recently opened files' })
+
+vim.keymap.set('n', '<leader>/', function()
+  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
+    winblend = 10,
+    previewer = false,
+  })
+end, { desc = '[/] Fuzzily search in current buffer' })
+
+vim.keymap.set('n', '<leader>s/', function()
+  require('telescope.builtin').live_grep {
+    grep_open_files = true,
+    prompt_title = 'Live Grep in Open Files',
+  }
+end, { desc = '[S]earch [/] in Open Files' })
+
+vim.keymap.set('n', '<leader>sg', function()
+  require('telescope.builtin').git_status()
+end, { desc = 'Search [G]it [F]iles' })
+
+vim.keymap.set('n', '<leader>sf', function()
+  require('telescope.builtin').find_files()
+end, { desc = '[S]earch [F]iles' })
+
+vim.keymap.set('n', '<leader>st', function()
+  require('telescope.builtin').live_grep()
+end, { desc = '[S]earch by [G]rep' })
+
+vim.keymap.set('n', '<leader>sb', function()
+  require('telescope.builtin').buffers()
+end, { desc = '[S]earch by [B]uffers' })
+
+vim.keymap.set('n', '<leader>sh', function()
+  require('telescope.builtin').search_history()
+end, { desc = '[S]earch by [H]istory' })
+
+vim.keymap.set('n', "<leader>sd", function()
+  require("telescope").extensions.dir.live_grep()
+end, { desc = '[S]earch by grep in selected [D]ir' })
+
+vim.keymap.set('n', "<leader>sm", "<cmd>Telescope terraform_doc full_name=hashicorp/aws version=5.54.1<CR>", { desc = '[S]earch Terrafor[M]' })
+
+-- ===========================
+-- Copilot keymaps
+-- ===========================
+
+vim.keymap.set(
+  "i",
+  "<C-g>",
+  'copilot#Accept("<CR>")',
+  { silent = true, expr = true, script = true, replace_keycodes = false }
+)
+vim.keymap.set("i", "<C-j>", "<Plug>(copilot-next)")
+vim.keymap.set("i", "<C-k>", "<Plug>(copilot-previous)")
+vim.keymap.set("i", "<C-d>", "<Plug>(copilot-dismiss)")
+vim.keymap.set("i", "<C-s>", "<Plug>(copilot-suggest)")
+
+-- ===========================
+-- Git linker keymaps
+-- ===========================
+
+vim.keymap.set('n', '<leader>gB', function()
+  require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})
+end, { silent = true, desc = 'Open Git link in browser' })
+
+vim.keymap.set('v', '<leader>gB', function()
+  require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})
+end, { desc = 'Open Git link in browser' })
+
+-- ===========================
+-- Neotest keymaps
+-- ===========================
+
+vim.keymap.set("n", "<leader>tt", function()
+  require('neotest').run.run(vim.fn.expand('%'))
+end, { desc = 'Run test file' })

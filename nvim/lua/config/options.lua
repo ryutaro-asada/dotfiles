@@ -1,48 +1,60 @@
+-- Neovim options configuration
+
+-- General settings
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+
+-- Language
+vim.cmd("language en_US.utf-8")
+
+-- Editor options
 local options = {
-	encoding = "utf-8",
-	fileencoding = "utf-8",
-	-- title = true,
-	backup = false,
-	clipboard = "unnamedplus",
-	-- cmdheight = 2,
-	completeopt = { "menuone", "noselect" },
-	-- conceallevel = 0,
-	hlsearch = true,
-	ignorecase = true,
-	mouse = "a",
-	-- pumheight = 10,
-	-- showmode = false,
-	-- showtabline = 2,
-	smartcase = true,
-	smartindent = true,
-	swapfile = false,
-	-- termguicolors = true,
-	-- timeoutlen = 300,
-	undofile = true,
-	-- updatetime = 300,
-	-- writebackup = false,
-	-- shell = "fish",
-	-- backupskip = { "/tmp/*", "/private/tmp/*" },
-	-- expandtab = true,
-	-- shiftwidth = 2,
-	-- tabstop = 2,
-	-- cursorline = true,
-	-- number = true,
-	-- relativenumber = false,
-	-- numberwidth = 4,
-	-- signcolumn = "yes",
-	-- wrap = false,
-	-- winblend = 0,
-	-- wildoptions = "pum",
-	-- pumblend = 5,
-	-- background = "dark",
-	-- scrolloff = 8,
-	-- sidescrolloff = 8,
-	-- guifont = "monospace:h17",
-	-- splitbelow = false, -- オンのとき、ウィンドウを横分割すると新しいウィンドウはカレントウィンドウの下に開かれる
-	-- splitright = false, -- オンのとき、ウィンドウを縦分割すると新しいウィンドウはカレントウィンドウの右に開かれる
+  -- File encoding
+  encoding = "utf-8",
+  fileencoding = "utf-8",
+
+  -- Line numbers
+  number = true,
+  relativenumber = false,
+
+  -- Search
+  hlsearch = true,
+  ignorecase = true,
+  smartcase = true,
+
+  -- Mouse and clipboard
+  mouse = "a",
+  clipboard = "unnamedplus",
+
+  -- Indentation
+  breakindent = true,
+  smartindent = true,
+
+  -- Files
+  undofile = true,
+  swapfile = false,
+  backup = false,
+  autochdir = false,
+
+  -- UI
+  signcolumn = "yes",
+  wrap = false,
+  completeopt = { "menuone", "noselect" },
+
+  -- Performance
+  updatetime = 250,
+  timeoutlen = 310,
 }
 
+-- Apply options
 for k, v in pairs(options) do
-	vim.opt[k] = v
+  vim.opt[k] = v
 end
+
+-- Disable netrw (for nvim-tree)
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- Copilot settings
+vim.g.copilot_no_tab_map = true
+vim.g.copilot_settings = { selectedCompletionModel = 'gpt-4o-copilot-2025-04-03' }
