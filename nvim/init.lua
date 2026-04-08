@@ -17,9 +17,9 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- Load configuration modules
-require('config.options')    -- Vim options and settings
-require('config.keymaps')    -- Key mappings
-require('config.autocmds')   -- Auto commands
+require('config.options')  -- Vim options and settings
+require('config.keymaps')  -- Key mappings
+require('config.autocmds') -- Auto commands
 
 -- Setup plugins with lazy.nvim
 require("lazy").setup("plugins")
@@ -32,4 +32,8 @@ require('plugins.telescope')
 require('plugins.cmp')
 
 -- Set color scheme
-vim.cmd [[colorscheme gruvbox]]
+-- vim.cmd [[colorscheme gruvbox]]
+--
+vim.g.everforest_background = 'hard'
+vim.g.everforest_enable_italic = 1
+vim.cmd [[colorscheme everforest]]

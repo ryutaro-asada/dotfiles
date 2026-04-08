@@ -2,161 +2,109 @@
 
 local lsp_common = require('lsp')
 
--- Lua LSP
-vim.lsp.config('lua_ls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-  settings = {
-    Lua = {
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
-    }
-  }
-})
-vim.lsp.enable('lua_ls')
+-- ===========================
+-- Server definitions
+-- ===========================
 
--- Go LSP
-vim.lsp.config('gopls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-  settings = {
-    gopls = {
-      analyses = {
-        unusedparams = true,
+local servers = {
+  -- Simple servers (default config only)
+  ruby_lsp = {},
+  terraformls = {},
+  zls = {},
+  clangd = {},
+  jsonls = {},
+  yamlls = {},
+  dockerls = {},
+  marksman = {},
+  bashls = {},
+  autotools_ls = {},
+  ts_ls = {},
+
+  -- Servers with custom settings
+  lua_ls = {
+    settings = {
+      Lua = {
+        workspace = { checkThirdParty = false },
+        telemetry = { enable = false },
+      }
+    }
+  },
+
+  gopls = {
+    settings = {
+      gopls = {
+        analyses = { unusedparams = true },
+        staticcheck = true,
+        gofumpt = true,
       },
-      staticcheck = true,
-      gofumpt = true,
     },
   },
-})
-vim.lsp.enable('gopls')
 
--- Ruby LSP
-vim.lsp.config('ruby_lsp', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('ruby_lsp')
-
--- Terraform LSP
-vim.lsp.config('terraformls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('terraformls')
-
--- Zig LSP
-vim.lsp.config('zls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('zls')
-
--- C/C++ LSP
-vim.lsp.config('clangd', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('clangd')
-
--- HTML LSP
-vim.lsp.config('html', {
-  capabilities = lsp_common.capabilities_html,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('html')
-
--- JSON LSP
-vim.lsp.config('jsonls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('jsonls')
-
--- YAML LSP
-vim.lsp.config('yamlls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('yamlls')
-
--- Dockerfile LSP
-vim.lsp.config('dockerls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('dockerls')
-
--- Python LSP
-vim.lsp.config('pylsp', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-  settings = {
-    pylsp = {
-      plugins = {
-        black = {
-          enabled = true,
-          line_length = 100,
-          ignore = { 'E501' },
-        },
-        flake8 = {
-          ignore = { 'E501' },
-        },
-        pycodestyle = {
-          ignore = { 'E501' },
-        },
+  pylsp = {
+    settings = {
+      pylsp = {
+        plugins = {
+          black = {
+            enabled = true,
+            line_length = 100,
+            ignore = { 'E501' },
+          },
+          flake8 = { ignore = { 'E501' } },
+          pycodestyle = { ignore = { 'E501' } },
+        }
       }
     }
-  }
-})
-vim.lsp.enable('pylsp')
+  },
 
--- Markdown LSP
-vim.lsp.config('marksman', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('marksman')
+  -- HTML (special capabilities)
+  html = {
+    capabilities = lsp_common.capabilities_html,
+  },
 
--- Bash LSP
-vim.lsp.config('bashls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('bashls')
-
--- Autotools LSP
-vim.lsp.config('autotools_ls', {
-  capabilities = lsp_common.capabilities,
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('autotools_ls')
-
--- Rust Analyzer
-vim.lsp.config('rust_analyzer', {
-  settings = {
-    ['rust-analyzer'] = {
-      diagnostics = {
-        enable = false,
+  -- Rust Analyzer (diagnostics disabled, no on_attach)
+  rust_analyzer = {
+    on_attach = vim.NIL,  -- vim.NIL will be converted to nil
+    settings = {
+      ['rust-analyzer'] = {
+        diagnostics = { enable = false }
       }
     }
-  }
-})
-vim.lsp.enable('rust_analyzer')
+  },
+}
 
--- TypeScript/JavaScript LSP
-vim.lsp.config('ts_ls', {
-  on_attach = lsp_common.on_attach,
-})
-vim.lsp.enable('ts_ls')
+-- ===========================
+-- Setup all servers
+-- ===========================
 
--- ESLint LSP with auto-fix on save
+for name, config in pairs(servers) do
+  -- Merge with default config
+  local final_config = vim.tbl_deep_extend('force', {
+    capabilities = lsp_common.capabilities,
+    on_attach = lsp_common.on_attach,
+  }, config)
+
+  -- Convert vim.NIL to nil (for explicitly disabling options)
+  for k, v in pairs(final_config) do
+    if v == vim.NIL then
+      final_config[k] = nil
+    end
+  end
+
+  vim.lsp.config(name, final_config)
+  vim.lsp.enable(name)
+end
+
+-- ===========================
+-- ESLint (special on_attach handling)
+-- ===========================
+
 local base_on_attach = vim.lsp.config.eslint.on_attach
-vim.lsp.config("eslint", {
+vim.lsp.config('eslint', {
   on_attach = function(client, bufnr)
-    if not base_on_attach then return end
+    if base_on_attach then
+      base_on_attach(client, bufnr)
+    end
 
-    base_on_attach(client, bufnr)
     vim.api.nvim_create_autocmd("BufWritePre", {
       buffer = bufnr,
       command = "LspEslintFixAll",

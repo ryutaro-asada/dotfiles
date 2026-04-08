@@ -218,6 +218,8 @@ return {
     "ellisonleao/gruvbox.nvim",
   },
 
+  { "sainnhe/everforest" },
+
   {
     "ryutaro-asada/partial-diff.nvim",
     config = function()

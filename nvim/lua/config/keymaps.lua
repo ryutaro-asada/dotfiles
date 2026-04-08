@@ -170,6 +170,41 @@ vim.keymap.set('v', '<leader>gB', function()
   require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})
 end, { desc = 'Open Git link in browser' })
 
+-- Copy git file path with line range (visual mode)
+-- Create user command to handle range properly
+vim.api.nvim_create_user_command('CopyGitLineRange', function(args)
+  local start_line = args.line1
+  local end_line = args.line2
+
+  -- Find git root
+  local current_file = vim.fn.expand('%:p')
+  local current_dir = vim.fn.fnamemodify(current_file, ':h')
+  local git_root = vim.fn.systemlist('git -C ' .. vim.fn.escape(current_dir, ' ') .. ' rev-parse --show-toplevel')[1]
+
+  if vim.v.shell_error ~= 0 then
+    vim.notify('Not a git repository', vim.log.levels.ERROR)
+    return
+  end
+
+  -- Calculate relative path from git root
+  local relative_path
+  if current_file:sub(1, #git_root) == git_root then
+    relative_path = current_file:sub(#git_root + 2)
+  else
+    relative_path = vim.fn.fnamemodify(current_file, ':~:.')
+  end
+
+  -- Format: path/to/file.ext#L<start>-<end>
+  local result = string.format('%s#L%d-%d', relative_path, start_line, end_line)
+
+  -- Copy to clipboard
+  vim.fn.setreg('+', result)
+  vim.notify('Copied! ' .. result, vim.log.levels.INFO)
+end, { range = true, desc = 'Copy git file path with line range' })
+
+-- Keymap to invoke the command
+vim.keymap.set('v', '<leader>gl', ':CopyGitLineRange<CR>', { desc = 'Copy [g]it file path with [l]ine range' })
+
 -- ===========================
 -- Neotest keymaps
 -- ===========================
