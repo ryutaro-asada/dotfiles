@@ -34,7 +34,8 @@ end
 return {
   {
     'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
+    -- 0.1.x is frozen (May 2024) and predates the Neovim 0.12 treesitter API changes
+    branch = 'master',
     dependencies = {
       'nvim-lua/plenary.nvim',
       'ANGkeith/telescope-terraform-doc.nvim',
