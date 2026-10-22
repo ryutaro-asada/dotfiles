@@ -194,17 +194,18 @@ return {
   -- Color Scheme & UI
   -- ===========================
 
-  {
-    "ellisonleao/gruvbox.nvim",
-  },
-
-  {
-    "sainnhe/everforest"
-  },
-
-  {
-    "nyoom-engineering/oxocarbon.nvim"
-  },
+  -- Alternative color schemes (uncomment to try; see the colorscheme lines in init.lua)
+  -- {
+  --   "ellisonleao/gruvbox.nvim",
+  -- },
+  --
+  -- {
+  --   "sainnhe/everforest"
+  -- },
+  --
+  -- {
+  --   "nyoom-engineering/oxocarbon.nvim"
+  -- },
 
   {
     "scottmckendry/cyberdream.nvim",

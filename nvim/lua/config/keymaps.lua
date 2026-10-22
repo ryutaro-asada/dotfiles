@@ -71,9 +71,6 @@ end, { desc = 'Copy current relative file path to clipboard' })
 -- Quick escape to normal mode
 vim.keymap.set('i', 'kk', '<ESC>', { silent = true })
 
--- Auto-insert space after comma
-keymap("i", ",", ",<Space>", opts)
-
 -- ===========================
 -- Visual mode
 -- ===========================
