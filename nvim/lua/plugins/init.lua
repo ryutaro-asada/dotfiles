@@ -19,24 +19,23 @@ return {
     'neovim/nvim-lspconfig',
     dependencies = {
       { 'j-hui/fidget.nvim', opts = {} },
-      'folke/neodev.nvim',
     },
   },
 
-  -- ===========================
-  -- Autocompletion
-  -- ===========================
-
+  -- Neovim Lua API types/completion for lua_ls (successor of the archived neodev.nvim)
   {
-    'hrsh7th/nvim-cmp',
-    dependencies = {
-      'L3MON4D3/LuaSnip',
-      'saadparwaiz1/cmp_luasnip',
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-path',
-      'rafamadriz/friendly-snippets',
+    'folke/lazydev.nvim',
+    ft = 'lua',
+    opts = {
+      library = {
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+      },
     },
   },
+
+  -- ===========================
+  -- Autocompletion: see lua/plugins/cmp.lua
+  -- ===========================
 
   -- ===========================
   -- UI & Navigation
@@ -84,7 +83,7 @@ return {
             return ']c'
           end
           vim.schedule(function()
-            gs.next_hunk()
+            gs.nav_hunk('next')
           end)
           return '<Ignore>'
         end, { expr = true, desc = 'Jump to next hunk' })
@@ -94,7 +93,7 @@ return {
             return '[c'
           end
           vim.schedule(function()
-            gs.prev_hunk()
+            gs.nav_hunk('prev')
           end)
           return '<Ignore>'
         end, { expr = true, desc = 'Jump to previous hunk' })
@@ -111,7 +110,8 @@ return {
         map('n', '<leader>gs', gs.stage_hunk, { desc = 'git stage hunk' })
         map('n', '<leader>gr', gs.reset_hunk, { desc = 'git reset hunk' })
         map('n', '<leader>gS', gs.stage_buffer, { desc = 'git Stage buffer' })
-        map('n', '<leader>gu', gs.undo_stage_hunk, { desc = 'undo stage hunk' })
+        -- stage_hunk on an already-staged hunk unstages it (replaces deprecated undo_stage_hunk)
+        map('n', '<leader>gu', gs.stage_hunk, { desc = 'toggle stage hunk' })
         map('n', '<leader>gR', gs.reset_buffer, { desc = 'git Reset buffer' })
         map('n', '<leader>gp', gs.preview_hunk, { desc = 'preview git hunk' })
         map('n', '<leader>gb', function()
@@ -124,7 +124,7 @@ return {
 
         -- Toggles
         map('n', '<leader>gt', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
-        map('n', '<leader>td', gs.toggle_deleted, { desc = 'toggle git show deleted' })
+        map('n', '<leader>td', gs.preview_hunk_inline, { desc = 'git preview deleted (inline)' })
 
         -- Text object
         map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
@@ -160,34 +160,9 @@ return {
   { 'numToStr/Comment.nvim', opts = {} },
 
   -- ===========================
-  -- Telescope (Fuzzy Finder)
+  -- Telescope (Fuzzy Finder): see lua/plugins/telescope.lua
+  -- Treesitter: see lua/plugins/treesitter.lua
   -- ===========================
-
-  {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      "ANGkeith/telescope-terraform-doc.nvim",
-      {
-        'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'make',
-        cond = function()
-          return vim.fn.executable 'make' == 1
-        end,
-      },
-    },
-  },
-
-  {
-    "princejoogie/dir-telescope.nvim",
-  },
-
-  -- ===========================
-  -- Treesitter (Syntax Highlighting)
-  -- ===========================
-
-  require('plugins.treesitter'),
 
   -- ===========================
   -- File Explorer
@@ -300,10 +275,6 @@ return {
   },
 
   -- ===========================
-  -- Formatting & Linting
-  -- ===========================
-
-  -- ===========================
   -- Utility Plugins
   -- ===========================
 
@@ -352,7 +323,7 @@ return {
 
   {
     "ruifm/gitlinker.nvim",
-    requires = "nvim-lua/plenary.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       require("gitlinker").setup()
     end,

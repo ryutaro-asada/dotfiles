@@ -4,7 +4,7 @@
 
 -- Bootstrap lazy.nvim plugin manager
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system {
     'git',
     'clone',
@@ -23,14 +23,11 @@ require('config.autocmds') -- Auto commands
 require('config.usercmds') -- User commands
 
 -- Setup plugins with lazy.nvim
+-- Every file in lua/plugins/*.lua is imported as a plugin spec.
 require("lazy").setup("plugins")
 
 -- Load LSP configuration
 require('lsp.servers')
-
--- Load plugin configurations
-require('plugins.telescope')
-require('plugins.cmp')
 
 -- Set color scheme
 -- vim.cmd [[colorscheme gruvbox]]

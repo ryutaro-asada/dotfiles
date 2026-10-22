@@ -1,4 +1,5 @@
--- Telescope configuration
+-- Telescope (fuzzy finder)
+-- Configured inside the lazy.nvim spec so setup runs after the plugin is loaded.
 
 -- Helper function to find git root directory
 local function find_git_root()
@@ -30,61 +31,71 @@ local function live_grep_git_root()
   end
 end
 
--- Create user command for git root search
-vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
-
--- Telescope setup is called after lazy.nvim loads plugins
--- This configuration will be executed after telescope is loaded
-local function setup_telescope()
-  require('telescope').setup {
-    defaults = {
-      file_ignore_patterns = {
-        '^node_modules/',
-        '^local_modules/',
-        'lock$',
-        'svg$',
+return {
+  {
+    'nvim-telescope/telescope.nvim',
+    branch = '0.1.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'ANGkeith/telescope-terraform-doc.nvim',
+      'princejoogie/dir-telescope.nvim',
+      {
+        'nvim-telescope/telescope-fzf-native.nvim',
+        build = 'make',
+        cond = function()
+          return vim.fn.executable 'make' == 1
+        end,
       },
-      mappings = {
-        i = {
-          ['<C-u>'] = false,
-          ['<C-d>'] = false,
+    },
+    config = function()
+      require('telescope').setup {
+        defaults = {
+          file_ignore_patterns = {
+            '^node_modules/',
+            '^local_modules/',
+            'lock$',
+            'svg$',
+          },
+          mappings = {
+            i = {
+              ['<C-u>'] = false,
+              ['<C-d>'] = false,
+            },
+          },
+          vimgrep_arguments = {
+            'rg',
+            '--color=never',
+            '--no-heading',
+            '--with-filename',
+            '--line-number',
+            '--column',
+            '--smart-case',
+            '--hidden', -- not ignore dotfiles
+          },
         },
-      },
-      vimgrep_arguments = {
-        "rg",
-        "--color=never",
-        "--no-heading",
-        "--with-filename",
-        "--line-number",
-        "--column",
-        "--smart-case",
-        '--hidden', -- not ignore dotfiles
-      },
-    },
-    pickers = {
-      live_grep = {
-        max_results = 1000,
-      },
-      buffers = {
-        show_all_buffers = true,
-        sort_lastused = true,
-        theme = "dropdown",
-        previewer = false,
-        mappings = {
-          i = {
-            ["<c-d>"] = "delete_buffer",
-          }
-        }
+        pickers = {
+          live_grep = {
+            max_results = 1000,
+          },
+          buffers = {
+            show_all_buffers = true,
+            sort_lastused = true,
+            theme = 'dropdown',
+            previewer = false,
+            mappings = {
+              i = {
+                ['<c-d>'] = 'delete_buffer',
+              },
+            },
+          },
+        },
       }
-    },
-  }
 
-  -- Enable telescope extensions
-  pcall(require('telescope').load_extension, 'fzf')
-  require('telescope').load_extension('terraform_doc')
-end
+      -- Enable telescope extensions
+      pcall(require('telescope').load_extension, 'fzf')
+      pcall(require('telescope').load_extension, 'terraform_doc')
 
--- Call setup when this module is loaded
-setup_telescope()
-
-return {}
+      vim.api.nvim_create_user_command('LiveGrepGitRoot', live_grep_git_root, {})
+    end,
+  },
+}

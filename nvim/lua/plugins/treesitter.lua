@@ -5,13 +5,17 @@ return {
   branch = 'master',
   build = ':TSUpdate',
   main = 'nvim-treesitter.configs',
+  dependencies = {
+    -- Required for the `textobjects` section below (was configured but never installed)
+    { 'nvim-treesitter/nvim-treesitter-textobjects', branch = 'master' },
+  },
   opts = {
     ensure_installed = {
       'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx',
       'javascript', 'typescript', 'vimdoc', 'vim', 'bash',
       'ruby', 'terraform', 'markdown', 'make', 'hcl', 'vue'
     },
-    sync_install = true,
+    sync_install = false,
     ignore_install = {},
     modules = {},
     auto_install = true,
@@ -61,25 +65,25 @@ return {
           [']]'] = '@class.outer',
         },
         goto_next_end = {
-          ['[m'] = '@function.outer',
+          [']M'] = '@function.outer',
           [']['] = '@class.outer',
         },
         goto_previous_start = {
-          ['[M'] = '@function.outer',
+          ['[m'] = '@function.outer',
           ['[['] = '@class.outer',
         },
         goto_previous_end = {
-          [']M'] = '@function.outer',
+          ['[M'] = '@function.outer',
           ['[]'] = '@class.outer',
         },
       },
       swap = {
         enable = true,
         swap_next = {
-          ['<leader>a'] = '@parameter.inner',
+          ['<leader>xa'] = '@parameter.inner',
         },
         swap_previous = {
-          ['<leader>A'] = '@parameter.inner',
+          ['<leader>xA'] = '@parameter.inner',
         },
       },
     },

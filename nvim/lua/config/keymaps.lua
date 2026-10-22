@@ -39,8 +39,10 @@ keymap("n", "tp", "gT", opts)
 keymap("n", "tn", "gt", opts)
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
+vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1, float = true }) end,
+  { desc = 'Go to previous diagnostic message' })
+vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1, float = true }) end,
+  { desc = 'Go to next diagnostic message' })
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
@@ -205,14 +207,6 @@ end, { range = true, desc = 'Copy git file path with line range' })
 
 -- Keymap to invoke the command
 vim.keymap.set('v', '<leader>gl', ':CopyGitLineRange<CR>', { desc = 'Copy [g]it file path with [l]ine range' })
-
--- ===========================
--- Neotest keymaps
--- ===========================
-
-vim.keymap.set("n", "<leader>tt", function()
-  require('neotest').run.run(vim.fn.expand('%'))
-end, { desc = 'Run test file' })
 
 -- ===========================
 -- partial-diff keymaps

@@ -85,6 +85,17 @@ local servers = {
 -- Setup all servers
 -- ===========================
 
+-- Returns true if the server's command is available on $PATH.
+-- Enabling a server whose binary is missing makes Neovim log/notify
+-- "cannot start <name> due to config error" every time a matching file opens.
+local function is_installed(name)
+  local cmd = (vim.lsp.config[name] or {}).cmd
+  if type(cmd) == 'table' and cmd[1] then
+    return vim.fn.executable(cmd[1]) == 1
+  end
+  return true -- cmd is a function (or unset): let Neovim decide
+end
+
 for name, config in pairs(servers) do
   -- Merge with default config
   local final_config = vim.tbl_deep_extend('force', {
@@ -100,7 +111,9 @@ for name, config in pairs(servers) do
   end
 
   vim.lsp.config(name, final_config)
-  vim.lsp.enable(name)
+  if is_installed(name) then
+    vim.lsp.enable(name)
+  end
 end
 
 -- ===========================
@@ -114,10 +127,14 @@ vim.lsp.config('eslint', {
       base_on_attach(client, bufnr)
     end
 
+    -- Per-buffer group so re-attaching doesn't stack duplicate autocmds
     vim.api.nvim_create_autocmd("BufWritePre", {
+      group = vim.api.nvim_create_augroup('EslintFixAll_' .. bufnr, { clear = true }),
       buffer = bufnr,
       command = "LspEslintFixAll",
     })
   end,
 })
-vim.lsp.enable('eslint')
+if is_installed('eslint') then
+  vim.lsp.enable('eslint')
+end
