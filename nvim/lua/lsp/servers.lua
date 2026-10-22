@@ -70,9 +70,8 @@ local servers = {
     capabilities = lsp_common.capabilities_html,
   },
 
-  -- Rust Analyzer (diagnostics disabled, no on_attach)
+  -- Rust Analyzer (diagnostics disabled; keymaps come from the common on_attach)
   rust_analyzer = {
-    on_attach = vim.NIL, -- vim.NIL will be converted to nil
     settings = {
       ['rust-analyzer'] = {
         diagnostics = { enable = false }
