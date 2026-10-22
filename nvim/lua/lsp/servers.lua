@@ -137,3 +137,9 @@ vim.lsp.config('eslint', {
 if is_installed('eslint') then
   vim.lsp.enable('eslint')
 end
+
+-- ===========================
+-- GitHub Copilot (inline completion + NES)
+-- ===========================
+
+require('lsp.copilot')

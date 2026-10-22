@@ -143,19 +143,8 @@ vim.keymap.set('n', "<leader>sm", "<cmd>Telescope terraform_doc full_name=hashic
   { desc = '[S]earch Terrafor[M]' })
 
 -- ===========================
--- Copilot keymaps
+-- Copilot keymaps: see lua/lsp/copilot.lua
 -- ===========================
-
-vim.keymap.set(
-  "i",
-  "<C-g>",
-  'copilot#Accept("<CR>")',
-  { silent = true, expr = true, script = true, replace_keycodes = false }
-)
-vim.keymap.set("i", "<C-j>", "<Plug>(copilot-next)")
-vim.keymap.set("i", "<C-k>", "<Plug>(copilot-previous)")
-vim.keymap.set("i", "<C-d>", "<Plug>(copilot-dismiss)")
-vim.keymap.set("i", "<C-s>", "<Plug>(copilot-suggest)")
 
 -- ===========================
 -- Git linker keymaps

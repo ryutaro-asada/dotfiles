@@ -50,9 +50,35 @@ return {
     },
   },
 
-  -- GitHub Copilot
+  -- ===========================
+  -- AI: GitHub Copilot
+  -- ===========================
+  -- Inline completion (ghost text) uses Neovim 0.12's built-in vim.lsp.inline_completion
+  -- with copilot-language-server (see lua/lsp/copilot.lua). sidekick.nvim adds Copilot's
+  -- Next Edit Suggestions (multi-line edits anywhere in the file) on top of that.
   {
-    'github/copilot.vim'
+    'folke/sidekick.nvim',
+    lazy = false, -- must be set up before Copilot attaches to hook its status handler
+    opts = {},
+    keys = {
+      {
+        '<Tab>',
+        function()
+          -- Jump to the next edit suggestion, or apply it if already there.
+          -- Falls back to normal <Tab> (= <C-i>, jumplist forward).
+          if not require('sidekick').nes_jump_or_apply() then
+            return '<Tab>'
+          end
+        end,
+        expr = true,
+        desc = 'Goto/Apply Next Edit Suggestion',
+      },
+      {
+        '<leader>an',
+        function() require('sidekick.nes').toggle() end,
+        desc = 'Toggle Next Edit Suggestions',
+      },
+    },
   },
 
 

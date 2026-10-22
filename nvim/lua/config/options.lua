@@ -54,6 +54,3 @@ end
 -- Disable netrw (for nvim-tree)
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
-
--- Copilot settings
-vim.g.copilot_no_tab_map = true
