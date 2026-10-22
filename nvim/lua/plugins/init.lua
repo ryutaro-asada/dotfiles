@@ -98,6 +98,12 @@ return {
           return '<Ignore>'
         end, { expr = true, desc = 'Jump to previous hunk' })
 
+        map('n', '[C', function() gs.nav_hunk('first') end, { desc = 'Jump to first hunk' })
+        map('n', ']C', function() gs.nav_hunk('last') end, { desc = 'Jump to last hunk' })
+
+        -- All changed hunks in the repo -> quickfix (navigate with :cnext / :cprev)
+        map('n', '<leader>gq', function() gs.setqflist('all') end, { desc = 'git hunks (repo) to quickfix' })
+
         -- Actions
         -- visual mode
         map('v', '<leader>gs', function()
