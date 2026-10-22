@@ -20,9 +20,11 @@ M.on_attach = function(_, bufnr)
     require('telescope.builtin').lsp_definitions()
   end, '[G]oto [D]efinition')
 
-  nmap('gr', function()
+  -- nowait: Neovim 0.11+ has default global gr* maps (grn, gra, grr, gri, grt, grx);
+  -- without it `gr` would pause for 'timeoutlen' waiting for a second key.
+  vim.keymap.set('n', 'gr', function()
     require('telescope.builtin').lsp_references()
-  end, '[G]oto [R]eferences')
+  end, { buffer = bufnr, nowait = true, desc = 'LSP: [G]oto [R]eferences' })
 
   nmap('gI', function()
     require('telescope.builtin').lsp_implementations()

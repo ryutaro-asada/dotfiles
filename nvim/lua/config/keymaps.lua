@@ -46,9 +46,8 @@ vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1, float = tr
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
--- LSP keymaps
+-- LSP keymaps (buffer-local LSP maps like <leader>ca live in lua/lsp/init.lua)
 vim.keymap.set('n', '<leader>ff', vim.lsp.buf.format, { desc = 'Format current buffer' })
-vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { desc = '[C]ode [A]ction' })
 
 -- File operations
 vim.keymap.set('n', '<leader>cf', "<cmd>! echo %<CR>", { desc = 'show [C]urrent [F]ile' })
