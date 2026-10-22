@@ -319,8 +319,16 @@ return {
     }
   },
 
+  -- Disable heavy features (treesitter, LSP, ...) for big files.
+  -- Replaces LunarVim/bigfile.nvim (uses deprecated vim.validate); snacks is already
+  -- installed as a claudecode.nvim dependency.
   {
-    "LunarVim/bigfile.nvim",
+    "folke/snacks.nvim",
+    lazy = false,
+    priority = 1000,
+    opts = {
+      bigfile = { enabled = true },
+    },
   },
 
   {

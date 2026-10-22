@@ -24,7 +24,11 @@ require('config.usercmds') -- User commands
 
 -- Setup plugins with lazy.nvim
 -- Every file in lua/plugins/*.lua is imported as a plugin spec.
-require("lazy").setup("plugins")
+require("lazy").setup("plugins", {
+  -- No plugin here needs luarocks; enabling it only causes build failures
+  -- (e.g. oxocarbon.nvim) because Lua 5.1 isn't installed.
+  rocks = { enabled = false },
+})
 
 -- Load LSP configuration
 require('lsp.servers')
