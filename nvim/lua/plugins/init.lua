@@ -218,13 +218,44 @@ return {
     "ellisonleao/gruvbox.nvim",
   },
 
-  { "sainnhe/everforest" },
+  {
+    "sainnhe/everforest"
+  },
 
   {
+    "nyoom-engineering/oxocarbon.nvim"
+  },
+
+  {
+    "scottmckendry/cyberdream.nvim",
+    lazy = false,
+    priority = 1000,
+  },
+
+  {
+    -- Published version from GitHub (default branch: main).
+    -- PR #3 is merged into main, so the diff.* options and line_move
+    -- highlight below are active.
+    -- To go back to the local working copy, comment this block and uncomment
+    -- the `dir = ...` block below.
     "ryutaro-asada/partial-diff.nvim",
+    build = ":PartialDiffInstallVSCode",
+    -- Local development checkout:
+    -- name = "partial-diff.nvim",
+    -- dir = "/Users/asaryu/repos/partial-diff.nvim",
     config = function()
       require('partial-diff').setup({
         debug = false,
+        diff = {
+          -- Detect moved code blocks and mark them instead of showing a change.
+          compute_moves = true,
+          -- Set to true to ignore pure indentation / trailing-space changes.
+          ignore_trim_whitespace = false,
+          -- Keep the two windows scroll/cursor synced.
+          sync_scroll = true,
+          -- Turn off wrap in both windows so horizontal scroll is mirrored.
+          sync_scroll_nowrap = true,
+        },
         highlights = {
           line_change = 'DiffChange',
           line_add = 'DiffAdd',
@@ -242,22 +273,35 @@ return {
             bg = '#4a4a0e',
             fg = '#ffd866',
             bold = true
+          },
+          -- Highlight for moved blocks (used when diff.compute_moves = true).
+          line_move = {
+            bg = '#2d3a5a',
+            fg = '#78a9ff',
           }
         }
       })
     end,
   },
 
+
   -- ===========================
-  -- Formatting & Linting
+  -- Markdown Preview
   -- ===========================
 
   {
-    "jose-elias-alvarez/null-ls.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    }
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    build = "cd app && npm install",
+    init = function()
+      vim.g.mkdp_filetypes = { "markdown" }
+    end,
+    ft = { "markdown" },
   },
+
+  -- ===========================
+  -- Formatting & Linting
+  -- ===========================
 
   -- ===========================
   -- Utility Plugins

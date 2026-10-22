@@ -141,7 +141,8 @@ vim.keymap.set('n', "<leader>sd", function()
   require("telescope").extensions.dir.live_grep()
 end, { desc = '[S]earch by grep in selected [D]ir' })
 
-vim.keymap.set('n', "<leader>sm", "<cmd>Telescope terraform_doc full_name=hashicorp/aws version=5.54.1<CR>", { desc = '[S]earch Terrafor[M]' })
+vim.keymap.set('n', "<leader>sm", "<cmd>Telescope terraform_doc full_name=hashicorp/aws version=6.50.0<CR>",
+  { desc = '[S]earch Terrafor[M]' })
 
 -- ===========================
 -- Copilot keymaps
@@ -163,11 +164,11 @@ vim.keymap.set("i", "<C-s>", "<Plug>(copilot-suggest)")
 -- ===========================
 
 vim.keymap.set('n', '<leader>gB', function()
-  require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})
+  require "gitlinker".get_buf_range_url("n", { action_callback = require "gitlinker.actions".open_in_browser })
 end, { silent = true, desc = 'Open Git link in browser' })
 
 vim.keymap.set('v', '<leader>gB', function()
-  require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})
+  require "gitlinker".get_buf_range_url("v", { action_callback = require "gitlinker.actions".open_in_browser })
 end, { desc = 'Open Git link in browser' })
 
 -- Copy git file path with line range (visual mode)
@@ -212,3 +213,14 @@ vim.keymap.set('v', '<leader>gl', ':CopyGitLineRange<CR>', { desc = 'Copy [g]it 
 vim.keymap.set("n", "<leader>tt", function()
   require('neotest').run.run(vim.fn.expand('%'))
 end, { desc = 'Run test file' })
+
+-- ===========================
+-- partial-diff keymaps
+-- ===========================
+
+-- Mark the visual selection as the source range (diff "from").
+vim.keymap.set('v', '<leader>df', ':PartialDiffFrom<CR>', { desc = 'Partial [D]iff: mark [F]rom range' })
+-- Mark the visual selection as the target range and open the diff ("to").
+vim.keymap.set('v', '<leader>dt', ':PartialDiffTo<CR>', { desc = 'Partial [D]iff: mark [T]o range and diff' })
+-- Close the current partial diff view.
+vim.keymap.set('n', '<leader>dd', ':PartialDiffDelete<CR>', { desc = 'Partial [D]iff: [D]elete/close view' })

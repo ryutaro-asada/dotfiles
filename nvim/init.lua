@@ -20,6 +20,7 @@ vim.opt.rtp:prepend(lazypath)
 require('config.options')  -- Vim options and settings
 require('config.keymaps')  -- Key mappings
 require('config.autocmds') -- Auto commands
+require('config.usercmds') -- User commands
 
 -- Setup plugins with lazy.nvim
 require("lazy").setup("plugins")
@@ -34,6 +35,11 @@ require('plugins.cmp')
 -- Set color scheme
 -- vim.cmd [[colorscheme gruvbox]]
 --
-vim.g.everforest_background = 'hard'
-vim.g.everforest_enable_italic = 1
-vim.cmd [[colorscheme everforest]]
+-- vim.g.everforest_background = 'hard'
+-- vim.g.everforest_enable_italic = 1
+-- vim.cmd [[colorscheme everforest]]
+--
+-- vim.opt.background = "dark" -- set this to dark or light
+-- vim.cmd.colorscheme "oxocarbon"
+--
+vim.cmd.colorscheme "cyberdream"

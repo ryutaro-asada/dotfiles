@@ -18,7 +18,16 @@ local servers = {
   marksman = {},
   bashls = {},
   autotools_ls = {},
-  ts_ls = {},
+
+  -- biome と喧嘩するので ts_ls のフォーマッタは無効化
+  ts_ls = {
+    on_attach = function(client, bufnr)
+      client.server_capabilities.documentFormattingProvider = false
+      client.server_capabilities.documentRangeFormattingProvider = false
+      lsp_common.on_attach(client, bufnr)
+    end,
+  },
+  biome = {},
 
   -- Servers with custom settings
   lua_ls = {
@@ -63,7 +72,7 @@ local servers = {
 
   -- Rust Analyzer (diagnostics disabled, no on_attach)
   rust_analyzer = {
-    on_attach = vim.NIL,  -- vim.NIL will be converted to nil
+    on_attach = vim.NIL, -- vim.NIL will be converted to nil
     settings = {
       ['rust-analyzer'] = {
         diagnostics = { enable = false }
