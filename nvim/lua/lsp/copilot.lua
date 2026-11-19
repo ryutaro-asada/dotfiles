@@ -18,6 +18,17 @@ vim.lsp.enable('copilot')
 -- Ghost-text completion for every client that supports it (only Copilot here)
 vim.lsp.inline_completion.enable(true)
 
+-- inline_completion only refreshes in insert mode, but an already-shown
+-- suggestion lingers after <Esc>. Clear it on InsertLeave so ghost text never
+-- shows outside insert mode.
+vim.api.nvim_create_autocmd('InsertLeave', {
+  group = vim.api.nvim_create_augroup('CopilotInlineCompletionClear', { clear = true }),
+  callback = function()
+    pcall(vim.lsp.inline_completion.enable, false)
+    pcall(vim.lsp.inline_completion.enable, true)
+  end,
+})
+
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('CopilotInlineCompletion', { clear = true }),
   callback = function(args)

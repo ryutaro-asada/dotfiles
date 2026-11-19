@@ -55,24 +55,15 @@ return {
   -- ===========================
   -- Inline completion (ghost text) uses Neovim 0.12's built-in vim.lsp.inline_completion
   -- with copilot-language-server (see lua/lsp/copilot.lua). sidekick.nvim adds Copilot's
-  -- Next Edit Suggestions (multi-line edits anywhere in the file) on top of that.
+  -- Next Edit Suggestions (NES). NES is disabled by default because it also surfaces
+  -- suggestions in normal mode; toggle it on per-session with <leader>an when wanted.
   {
     'folke/sidekick.nvim',
     lazy = false, -- must be set up before Copilot attaches to hook its status handler
-    opts = {},
+    opts = {
+      nes = { enabled = false },
+    },
     keys = {
-      {
-        '<Tab>',
-        function()
-          -- Jump to the next edit suggestion, or apply it if already there.
-          -- Falls back to normal <Tab> (= <C-i>, jumplist forward).
-          if not require('sidekick').nes_jump_or_apply() then
-            return '<Tab>'
-          end
-        end,
-        expr = true,
-        desc = 'Goto/Apply Next Edit Suggestion',
-      },
       {
         '<leader>an',
         function() require('sidekick.nes').toggle() end,
@@ -240,16 +231,14 @@ return {
   },
 
   {
-    -- Published version from GitHub (default branch: main).
-    -- PR #3 is merged into main, so the diff.* options and line_move
-    -- highlight below are active.
-    -- To go back to the local working copy, comment this block and uncomment
-    -- the `dir = ...` block below.
-    "ryutaro-asada/partial-diff.nvim",
-    build = ":PartialDiffInstallVSCode",
-    -- Local development checkout:
-    -- name = "partial-diff.nvim",
-    -- dir = "/Users/asaryu/repos/partial-diff.nvim",
+    -- Local development checkout (currently testing the PR #17 branch).
+    -- To go back to the published version, comment the `name`/`dir` lines
+    -- and uncomment the GitHub lines below.
+    name = "partial-diff.nvim",
+    dir = "/Users/asaryu/repos/partial-diff.nvim",
+    -- Published version from GitHub (default branch: main):
+    -- "ryutaro-asada/partial-diff.nvim",
+    -- build = ":PartialDiffInstallVSCode",
     config = function()
       require('partial-diff').setup({
         debug = false,
@@ -367,5 +356,49 @@ return {
       require("gitlinker").setup()
     end,
     lazy = false,
+  },
+  {
+    "coder/claudecode.nvim",
+    dependencies = { "folke/snacks.nvim" },
+    config = true,
+    -- `cmd` lets lazy.nvim create command stubs that load the plugin on first use,
+    -- so `:ClaudeCode` and friends work on a fresh start. Without it, a keys-only
+    -- spec defers loading until a <leader>a* mapping is pressed and the commands
+    -- would not exist yet.
+    cmd = {
+      "ClaudeCode",
+      "ClaudeCodeFocus",
+      "ClaudeCodeSelectModel",
+      "ClaudeCodeAdd",
+      "ClaudeCodeSend",
+      "ClaudeCodeTreeAdd",
+      "ClaudeCodeStatus",
+      "ClaudeCodeStart",
+      "ClaudeCodeStop",
+      "ClaudeCodeOpen",
+      "ClaudeCodeClose",
+      "ClaudeCodeDiffAccept",
+      "ClaudeCodeDiffDeny",
+      "ClaudeCodeCloseAllDiffs",
+    },
+    keys = {
+      { "<leader>a",  nil,                              desc = "AI/Claude Code" },
+      { "<leader>ac", "<cmd>ClaudeCode<cr>",            desc = "Toggle Claude" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>",       desc = "Focus Claude" },
+      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>",   desc = "Resume Claude" },
+      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },
+      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude model" },
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>",       desc = "Add current buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>",        mode = "v",                  desc = "Send to Claude" },
+      {
+        "<leader>as",
+        "<cmd>ClaudeCodeTreeAdd<cr>",
+        desc = "Add file",
+        ft = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw", "snacks_picker_list" },
+      },
+      -- Diff management
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>",   desc = "Deny diff" },
+    },
   },
 }

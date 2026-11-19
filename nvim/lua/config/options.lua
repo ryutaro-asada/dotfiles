@@ -12,6 +12,7 @@ local options = {
   -- File encoding
   encoding = "utf-8",
   fileencoding = "utf-8",
+  fileencodings = "ucs-bom,utf-8,cp932,euc-jp,latin1",
 
   -- Line numbers
   number = true,
