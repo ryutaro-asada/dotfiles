@@ -10,7 +10,7 @@ config.font = wezterm.font_with_fallback({
 config.font_size = 14
 -- Disable ligatures
 config.harfbuzz_features = { "calt=0", "clig=0", "liga=0" }
-config.window_decorations = "RESIZE"
+config.window_decorations = "TITLE | RESIZE"
 config.hide_tab_bar_if_only_one_tab = true
 config.window_padding = { left = 8, right = 8, top = 8, bottom = 8 }
 
