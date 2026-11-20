@@ -40,4 +40,88 @@ autocmd('BufWritePre', {
   end,
 })
 
+-- Restore the cursor to where it was when the file was last closed.
+-- Only on read, so revisiting a buffer does not jump again.
+autocmd('BufReadPost', {
+  group = augroup('LastPosition', { clear = true }),
+  callback = function(args)
+    local ft = vim.bo[args.buf].filetype
+    if vim.bo[args.buf].buftype ~= '' or ft == 'gitcommit' or ft == 'gitrebase' then
+      return
+    end
+    -- A line was given on the command line (nvim file +num)
+    if vim.fn.line('.') > 1 then
+      return
+    end
+    local mark = vim.api.nvim_buf_get_mark(args.buf, '"')
+    if mark[1] > 0 and mark[1] <= vim.api.nvim_buf_line_count(args.buf) then
+      vim.cmd.normal({ 'g`"zz', bang = true })
+    end
+  end,
+})
+
+-- Make files with a shebang executable on save.
+autocmd('BufWritePost', {
+  group = augroup('ShebangExecutable', { clear = true }),
+  callback = function(args)
+    local first_line = vim.api.nvim_buf_get_lines(args.buf, 0, 1, false)[1] or ''
+    if first_line:match('^#!.*/bin/') then
+      vim.fn.setfperm(args.file, 'rwxr-xr-x')
+    end
+  end,
+})
+
+local qf_group = augroup('Quickfix', { clear = true })
+
+-- Open the quickfix/location list after :grep, :make and friends.
+autocmd('QuickfixCmdPost', {
+  group = qf_group,
+  pattern = { 'make', 'grep', 'grepadd', 'vimgrep', 'vimgrepadd' },
+  command = 'cwindow',
+})
+autocmd('QuickfixCmdPost', {
+  group = qf_group,
+  pattern = { 'lmake', 'lgrep', 'lgrepadd', 'lvimgrep', 'lvimgrepadd' },
+  command = 'lwindow',
+})
+
+-- Pin the quickfix buffer to its window so :bnext/:edit don't replace it.
+autocmd({ 'FileType', 'BufWinEnter' }, {
+  group = qf_group,
+  callback = function(args)
+    if vim.bo[args.buf].filetype ~= 'qf' then
+      return
+    end
+    for _, win in ipairs(vim.fn.win_findbuf(args.buf)) do
+      vim.wo[win].winfixbuf = true
+    end
+  end,
+})
+
+-- Highlight the separators of the current window.
+local active_sep = 'WinSeparator:WinSeparatorActive'
+local sep_group = augroup('ActiveWinSeparator', { clear = true })
+local function set_active_separator_hl()
+  vim.api.nvim_set_hl(0, 'WinSeparatorActive', { link = 'Special', default = true })
+end
+set_active_separator_hl()
+autocmd('ColorScheme', { group = sep_group, callback = set_active_separator_hl })
+autocmd({ 'WinEnter', 'BufWinEnter', 'VimEnter' }, {
+  group = sep_group,
+  callback = function()
+    local cur = vim.api.nvim_get_current_win()
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      if vim.api.nvim_win_get_config(win).relative == '' then
+        local parts = vim.tbl_filter(function(p)
+          return p ~= '' and p ~= active_sep
+        end, vim.split(vim.wo[win].winhighlight, ',', { plain = true }))
+        if win == cur then
+          table.insert(parts, active_sep)
+        end
+        vim.wo[win].winhighlight = table.concat(parts, ',')
+      end
+    end
+  end,
+})
+
 -- ESLint auto-fix on save is set up in lua/lsp/servers.lua (LspEslintFixAll on attach).
