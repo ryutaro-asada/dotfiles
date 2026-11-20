@@ -1,0 +1,48 @@
+[user]
+	email = deneimonmaru@gmail.com
+	name = ryutaro-asada
+[alias]
+	loga = log --graph --oneline --decorate=full --date=short --format=\"%C(yellow)%h%C(reset) %C(magenta)[%ad]%C(reset)%C(auto)%d%C(reset) %s %C(cyan)@%an%C(reset)\"
+	please = push --force-with-lease
+	uncommit = reset --mixed HEAD~
+[delta]
+    side-by-side = true
+    true-color = always
+    features = decorations
+[merge]
+    conflictstyle = diff3
+
+[core]
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only --features=interactive
+
+[delta "interactive"]
+    keep-plus-minus-markers = false
+
+[delta "decorations"]
+    commit-decoration-style = blue ol
+    commit-style = raw
+    file-style = omit
+    hunk-header-decoration-style = blue box
+    hunk-header-file-style = red
+    hunk-header-line-number-style = "#067a00"
+    hunk-header-style = file line-number syntax
+
+[pull]
+	rebase = true
+[rebase]
+	autostash = true
+[fetch]
+	prune = true
+[push]
+	default = current
+[rerere]
+	enabled = true
+[commit]
+	# Show the diff below the message in the commit editor
+	verbose = true
+[diff]
+	# Color moved lines differently from added/removed ones
+	colorMoved = default
